@@ -1,5 +1,4 @@
 import React, { useEffect, useState, FormEvent } from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import io from "socket.io-client";
 const ENDPOINT = process.env.ENDPOINT || "http://localhost:8000";
