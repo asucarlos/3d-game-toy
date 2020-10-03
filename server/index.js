@@ -14,10 +14,11 @@ app.get('/', (req, res) => {
 })
 
 io.on("connection", (socket) => {
+  socket.on('message', (msg) => {
+    socket.broadcast.emit("FromAPI", msg);
+  }) 
   console.log("New client connected");
-  const response = new Date();
   // Emitting a new message. Will be consumed by the client
-  socket.emit("FromAPI", response);
   socket.on("disconnect", () => {
     console.log("Client disconnected");
   });
