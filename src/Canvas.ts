@@ -1,5 +1,8 @@
+import { ReactComponent } from '*.svg';
 import React from 'react'
 import * as THREE from 'three';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+
 export default class Canvas extends React.Component {
   private scene:any = {}
   private camera:any = {}
@@ -8,7 +11,8 @@ export default class Canvas extends React.Component {
   private geometry:any = {}
   private cube:any = {}
   public animate:any = {}
-  
+  public object:any = {}
+
   constructor(props?:any){
     super(props)
     this.scene = new THREE.Scene();
@@ -28,6 +32,28 @@ export default class Canvas extends React.Component {
       this.renderer.render( this.scene, this.camera );
     };
     this.animate = this.animate.bind(this)
-
+    this.loadObject(this.scene)
+    this.addLight(this.scene)
   }
+
+  loadObject(scene: any) {
+    const loader = new OBJLoader();
+    loader.load( 'http://localhost:8000/public/windmill.obj', function ( obj ) {
+      console.log(obj)
+      console.log(scene)
+
+      scene.add(obj)
+    }, undefined, function ( error ) {
+      console.error( error );
+    } );
+  }
+
+  addLight(scene: any) {
+    const skyColor = 0xB1E1FF;  // light blue
+    const groundColor = 0xB97A20;  // brownish orange
+    const intensity = 1;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    scene.add(light);
+  }
+
 }

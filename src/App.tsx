@@ -16,7 +16,7 @@ function App() {
 
   useEffect(() => {
     socket.on("FromAPI", function (msg: string) {
-      setReceivedMessage(msg);
+      typeof msg === 'string' && setReceivedMessage(msg);
     });
   }, [socket]);
 
