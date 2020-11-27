@@ -1,7 +1,6 @@
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
-
 const port = process.env.PORT || 8000;
 
 const app = express();
@@ -13,13 +12,15 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-io.on("connection", (socket) => {
-  // socket.on("message", (msg) => {
-  //   socket.broadcast.emit("FromAPI", msg);
-  // });
-  console.log("New client connected");
-  // Emitting a new message. Will be consumed by the client
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  next();
+});
 
+app.use('/public', express.static('public'))
+
+io.on("connection", (socket) => {
+  console.log("New client connected");
   socket.on("new room", (room) => {
     console.log("a new room is created", room);
     socket.room = room;
