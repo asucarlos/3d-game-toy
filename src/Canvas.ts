@@ -2,6 +2,7 @@ import { ReactComponent } from '*.svg';
 import React from 'react'
 import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 
 export default class Canvas extends React.Component {
   private scene:any = {}
@@ -23,7 +24,7 @@ export default class Canvas extends React.Component {
     this.geometry = new THREE.BoxGeometry( 1, 1, 1 );
     this.material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
     this.cube = new THREE.Mesh( this.geometry, this.material );
-    this.scene.add( this.cube );
+    // this.scene.add( this.cube );
     this.camera.position.z = 5;
     this.animate = function () {
       requestAnimationFrame( this.animate );
@@ -32,28 +33,57 @@ export default class Canvas extends React.Component {
       this.renderer.render( this.scene, this.camera );
     };
     this.animate = this.animate.bind(this)
-    this.loadObject(this.scene)
+
+    // this.loadObject(this.scene)
     this.addLight(this.scene)
+    
+    this.loadFBXFile(this.scene)
+    const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+    hemiLight.position.set( 0, 200, 0 );
+    this.scene.add( hemiLight );
+
+    const dirLight = new THREE.DirectionalLight( 0xffffff );
+    dirLight.position.set( 0, 200, 100 );
+    dirLight.castShadow = true;
+    dirLight.shadow.camera.top = 180;
+    dirLight.shadow.camera.bottom = - 100;
+    dirLight.shadow.camera.left = - 120;
+    dirLight.shadow.camera.right = 120;
+    this.scene.add( dirLight );
   }
 
-  loadObject(scene: any) {
+  loadObject(scene: THREE.Scene) {
     const loader = new OBJLoader();
-    loader.load( 'http://localhost:8000/public/windmill.obj', function ( obj ) {
-      console.log(obj)
-      console.log(scene)
-
+    loader.load( 'http://localhost:8000/public/tree1.obj', function ( obj ) {
       scene.add(obj)
     }, undefined, function ( error ) {
       console.error( error );
     } );
   }
 
-  addLight(scene: any) {
+  addLight(scene: THREE.Scene) {
     const skyColor = 0xB1E1FF;  // light blue
     const groundColor = 0xB97A20;  // brownish orange
     const intensity = 1;
     const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
     scene.add(light);
+  }
+
+  loadFBXFile(scene: THREE.Scene) {
+    const loader = new FBXLoader();
+    loader.load( 'http://localhost:8000/public/rp_eric_rigged_001_u3d.fbx', function ( obj ) {
+      const texture = new THREE.TextureLoader().load( 'http://localhost:8000/public/rp_eric_rigged_001_dif.jpg' );
+      const material = new THREE.MeshBasicMaterial( { map: texture } );
+      obj.scale.multiplyScalar(0.01); 
+      obj.traverse( function ( child: any ) {
+        if( child.material ) {
+          child.material = material
+        }      
+      } );
+      scene.add(obj)
+    }, undefined, function ( error ) {
+      console.error( error );
+    } );
   }
 
 }
